@@ -2,10 +2,49 @@ import React, { Component } from 'react';
 import test from '../context/Context';
 
 class Table extends Component {
-  render() {
+  state = {
+    nameFilter: '',
+    planets: [],
+  };
+
+  componentDidUpdate = (prevProps, prevState) => {
+    if (prevState.planets.length <= 0) {
+      this.setState({
+        planets: this.context,
+      });
+    }
+  };
+
+  onInputChange = ({ target }) => {
+    const { name, value } = target;
+    this.setState({ [name]: value }, () => {
+      this.filterPlanetByName();
+    });
+  };
+
+  filterPlanetByName = () => {
+    const { nameFilter } = this.state;
     const planets = this.context;
+    const a = planets.filter((item) => {
+      const planet = item.name.toLowerCase().replaceAll(' ', '');
+      return planet.includes(nameFilter.toLocaleLowerCase().replaceAll(' ', ''));
+    });
+    this.setState({
+      planets: a,
+    });
+  };
+
+  render() {
+    const { planets, nameFilter } = this.state;
     return (
       <div>
+        <input
+          type="text"
+          name="nameFilter"
+          data-testid="name-filter"
+          value={ nameFilter }
+          onChange={ this.onInputChange }
+        />
         <table>
           <thead>
             <tr>
