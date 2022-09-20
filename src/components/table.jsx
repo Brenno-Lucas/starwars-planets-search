@@ -5,6 +5,9 @@ class Table extends Component {
   state = {
     nameFilter: '',
     planets: [],
+    columnFilter: 'population',
+    comparisonFilter: 'maior que',
+    valueFilter: 0,
   };
 
   componentDidUpdate = (prevProps, prevState) => {
@@ -25,17 +28,37 @@ class Table extends Component {
   filterPlanetByName = () => {
     const { nameFilter } = this.state;
     const planets = this.context;
-    const a = planets.filter((item) => {
+    const planetsFiltered = planets.filter((item) => {
       const planet = item.name.toLowerCase().replaceAll(' ', '');
       return planet.includes(nameFilter.toLocaleLowerCase().replaceAll(' ', ''));
     });
     this.setState({
-      planets: a,
+      planets: planetsFiltered,
+    });
+  };
+
+  filterPlanetByColumn = () => {
+    const { columnFilter, comparisonFilter, valueFilter } = this.state;
+    const planets = this.context;
+    switch (comparisonFilter) {
+    case 'maior que':
+      return planets.filter((item) => Number(item[columnFilter]) > Number(valueFilter));
+    case 'menor que':
+      return planets.filter((item) => Number(item[columnFilter]) < Number(valueFilter));
+    default:
+      return planets.filter((item) => Number(item[columnFilter]) === Number(valueFilter));
+    }
+  };
+
+  renderSubmitFiltered = () => {
+    this.setState({
+      planets: this.filterPlanetByColumn(),
     });
   };
 
   render() {
-    const { planets, nameFilter } = this.state;
+    const { planets,
+      nameFilter, comparisonFilter, columnFilter, valueFilter } = this.state;
     return (
       <div>
         <input
@@ -45,6 +68,42 @@ class Table extends Component {
           value={ nameFilter }
           onChange={ this.onInputChange }
         />
+        <select
+          data-testid="column-filter"
+          name="columnFilter"
+          value={ columnFilter }
+          onChange={ this.onInputChange }
+        >
+          <option value="population">population</option>
+          <option value="orbital_period">orbital_period</option>
+          <option value="diameter">diameter</option>
+          <option value="rotation_period">rotation_period</option>
+          <option value="surface_water">surface_water</option>
+        </select>
+        <select
+          data-testid="comparison-filter"
+          name="comparisonFilter"
+          value={ comparisonFilter }
+          onChange={ this.onInputChange }
+        >
+          <option value="maior que">maior que</option>
+          <option value="menor que">menor que</option>
+          <option value="igual a">igual a</option>
+        </select>
+        <input
+          type="number"
+          name="valueFilter"
+          data-testid="value-filter"
+          value={ valueFilter }
+          onChange={ this.onInputChange }
+        />
+        <button
+          type="submit"
+          data-testid="button-filter"
+          onClick={ this.renderSubmitFiltered }
+        >
+          Filtro
+        </button>
         <table>
           <thead>
             <tr>
