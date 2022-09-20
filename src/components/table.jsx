@@ -20,26 +20,26 @@ class Table extends Component {
 
   onInputChange = ({ target }) => {
     const { name, value } = target;
-    this.setState({ [name]: value }, () => {
-      this.filterPlanetByName();
-    });
+    this.setState({ [name]: value });
   };
 
-  filterPlanetByName = () => {
-    const { nameFilter } = this.state;
-    const planets = this.context;
-    const planetsFiltered = planets.filter((item) => {
-      const planet = item.name.toLowerCase().replaceAll(' ', '');
-      return planet.includes(nameFilter.toLocaleLowerCase().replaceAll(' ', ''));
-    });
-    this.setState({
-      planets: planetsFiltered,
+  filterPlanetByName = ({ target }) => {
+    const { name, value } = target;
+    this.setState({ [name]: value }, () => {
+      const { nameFilter } = this.state;
+      const planets = this.context;
+      const planetsFiltered = planets.filter((item) => {
+        const planet = item.name.toLowerCase().replaceAll(' ', '');
+        return planet.includes(nameFilter.toLocaleLowerCase().replaceAll(' ', ''));
+      });
+      this.setState({
+        planets: planetsFiltered,
+      });
     });
   };
 
   filterPlanetByColumn = () => {
-    const { columnFilter, comparisonFilter, valueFilter } = this.state;
-    const planets = this.context;
+    const { columnFilter, comparisonFilter, valueFilter, planets } = this.state;
     switch (comparisonFilter) {
     case 'maior que':
       return planets.filter((item) => Number(item[columnFilter]) > Number(valueFilter));
@@ -66,7 +66,7 @@ class Table extends Component {
           name="nameFilter"
           data-testid="name-filter"
           value={ nameFilter }
-          onChange={ this.onInputChange }
+          onChange={ this.filterPlanetByName }
         />
         <select
           data-testid="column-filter"
