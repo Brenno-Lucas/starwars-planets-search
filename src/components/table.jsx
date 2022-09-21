@@ -5,9 +5,12 @@ class Table extends Component {
   state = {
     nameFilter: '',
     planets: [],
+    columnFilters:
+    ['population', 'orbital_period', 'diameter', 'rotation_period', 'surface_water'],
     columnFilter: 'population',
     comparisonFilter: 'maior que',
     valueFilter: 0,
+    usedFilters: [],
   };
 
   componentDidUpdate = (prevProps, prevState) => {
@@ -51,14 +54,30 @@ class Table extends Component {
   };
 
   renderSubmitFiltered = () => {
+    const { columnFilter, comparisonFilter, valueFilter, usedFilters } = this.state;
     this.setState({
       planets: this.filterPlanetByColumn(),
+      usedFilters: [...usedFilters, {
+        columnFilter,
+        valueFilter,
+        comparisonFilter,
+      }],
+    });
+  };
+
+  test = () => {
+    this.renderSubmitFiltered();
+    const { columnFilters } = this.state;
+    const coloumnValue = document.getElementById('columnFilter').value;
+    this.setState({
+      columnFilters: columnFilters.filter((item) => item !== coloumnValue),
+      columnFilter: columnFilters[0],
     });
   };
 
   render() {
-    const { planets,
-      nameFilter, comparisonFilter, columnFilter, valueFilter } = this.state;
+    const { planets, nameFilter, columnFilters,
+      comparisonFilter, columnFilter, valueFilter } = this.state;
     return (
       <div>
         <input
@@ -71,14 +90,13 @@ class Table extends Component {
         <select
           data-testid="column-filter"
           name="columnFilter"
+          id="columnFilter"
           value={ columnFilter }
           onChange={ this.onInputChange }
         >
-          <option value="population">population</option>
-          <option value="orbital_period">orbital_period</option>
-          <option value="diameter">diameter</option>
-          <option value="rotation_period">rotation_period</option>
-          <option value="surface_water">surface_water</option>
+          {columnFilters.map((column) => (
+            <option key={ column } value={ column }>{column}</option>
+          ))}
         </select>
         <select
           data-testid="comparison-filter"
@@ -100,7 +118,7 @@ class Table extends Component {
         <button
           type="submit"
           data-testid="button-filter"
-          onClick={ this.renderSubmitFiltered }
+          onClick={ this.test }
         >
           Filtro
         </button>
