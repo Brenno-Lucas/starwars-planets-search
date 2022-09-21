@@ -104,7 +104,7 @@ class Table extends Component {
       comparisonFilter, columnFilter, valueFilter, usedFilters } = this.state;
     return (
       <div>
-        <container id="filters">
+        <section id="filters">
           {usedFilters.map((item) => (
             <section key={ item.id } data-testid="filter">
               <p>{item.columnFilter}</p>
@@ -119,7 +119,7 @@ class Table extends Component {
               </button>
             </section>
           ))}
-        </container>
+        </section>
         <button
           type="submit"
           data-testid="button-remove-filters"
@@ -191,7 +191,7 @@ class Table extends Component {
         <table>
           <tbody>
             {planets.length > 0 && planets[planets.length - 1].map((planet) => (
-              <tr key={ planet.name }>
+              <tr key={ planet.name } data-testid="planet">
                 <td>{ planet.name }</td>
                 <td>{ planet.rotation_period }</td>
                 <td>{ planet.orbital_period}</td>
