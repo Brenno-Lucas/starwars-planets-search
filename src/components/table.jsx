@@ -16,7 +16,7 @@ class Table extends Component {
   componentDidUpdate = (prevProps, prevState) => {
     if (prevState.planets.length <= 0) {
       this.setState({
-        planets: this.context,
+        planets: [this.context],
       });
     }
   };
@@ -36,7 +36,7 @@ class Table extends Component {
         return planet.includes(nameFilter.toLocaleLowerCase().replaceAll(' ', ''));
       });
       this.setState({
-        planets: planetsFiltered,
+        planets: [planetsFiltered],
       });
     });
   };
@@ -45,27 +45,32 @@ class Table extends Component {
     const { columnFilter, comparisonFilter, valueFilter, planets } = this.state;
     switch (comparisonFilter) {
     case 'maior que':
-      return planets.filter((item) => Number(item[columnFilter]) > Number(valueFilter));
+      return planets[planets.length - 1].filter((item) => Number(item[columnFilter])
+        > Number(valueFilter));
     case 'menor que':
-      return planets.filter((item) => Number(item[columnFilter]) < Number(valueFilter));
+      return planets[planets.length - 1].filter((item) => Number(item[columnFilter])
+        < Number(valueFilter));
     default:
-      return planets.filter((item) => Number(item[columnFilter]) === Number(valueFilter));
+      return planets[planets.length - 1].filter((item) => Number(item[columnFilter])
+        === Number(valueFilter));
     }
   };
 
   renderSubmitFiltered = () => {
-    const { columnFilter, comparisonFilter, valueFilter, usedFilters } = this.state;
+    const { columnFilter,
+      comparisonFilter, valueFilter, usedFilters, planets } = this.state;
     this.setState({
-      planets: this.filterPlanetByColumn(),
+      planets: [...planets, this.filterPlanetByColumn()],
       usedFilters: [...usedFilters, {
         columnFilter,
         valueFilter,
         comparisonFilter,
+        id: planets.length,
       }],
     });
   };
 
-  test = () => {
+  removeUsedColumnFilter = () => {
     this.renderSubmitFiltered();
     const { columnFilters } = this.state;
     const coloumnValue = document.getElementById('columnFilter').value;
@@ -75,11 +80,53 @@ class Table extends Component {
     });
   };
 
+  removeFilter = (event) => {
+    const { columnFilters, planets, usedFilters } = this.state;
+    const item = event.target.value;
+    const column = columnFilters;
+    column.push(item);
+    planets.splice(planets.indexOf(Number(usedFilters[0].id), 1));
+    this.setState({
+      columnFilter: column,
+    });
+    event.target.parentNode.remove();
+  };
+
+  RemoveAllFilters = () => {
+    document.getElementById('filters').remove();
+    this.setState({
+      planets: [this.context],
+    });
+  };
+
   render() {
     const { planets, nameFilter, columnFilters,
-      comparisonFilter, columnFilter, valueFilter } = this.state;
+      comparisonFilter, columnFilter, valueFilter, usedFilters } = this.state;
     return (
       <div>
+        <container id="filters">
+          {usedFilters.map((item) => (
+            <section key={ item.id } data-testid="filter">
+              <p>{item.columnFilter}</p>
+              <p>{item.comparisonFilter}</p>
+              <p>{item.valueFilter}</p>
+              <button
+                type="submit"
+                onClick={ this.removeFilter }
+                value={ item.columnFilter }
+              >
+                RemoveFilter
+              </button>
+            </section>
+          ))}
+        </container>
+        <button
+          type="submit"
+          data-testid="button-remove-filters"
+          onClick={ this.RemoveAllFilters }
+        >
+          RemoveAllFilters
+        </button>
         <input
           type="text"
           name="nameFilter"
@@ -118,7 +165,7 @@ class Table extends Component {
         <button
           type="submit"
           data-testid="button-filter"
-          onClick={ this.test }
+          onClick={ this.removeUsedColumnFilter }
         >
           Filtro
         </button>
@@ -143,7 +190,7 @@ class Table extends Component {
         </table>
         <table>
           <tbody>
-            {planets.map((planet) => (
+            {planets.length > 0 && planets[planets.length - 1].map((planet) => (
               <tr key={ planet.name }>
                 <td>{ planet.name }</td>
                 <td>{ planet.rotation_period }</td>
